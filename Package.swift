@@ -11,7 +11,7 @@ let package = Package(
         .package(url: "https://github.com/kylef/Commander.git", from: "0.8.0"),
         .package(url: "https://github.com/watanabetoshinori/XMLParsing.git", from: "0.0.4"),
         .package(url: "https://github.com/SwiftGen/StencilSwiftKit.git", from: "2.7.1"),
-        .package(url: "https://github.com/watanabetoshinori/StoryboardModel.git", from: "0.0.1"),
+        .package(url: "https://github.com/watanabetoshinori/StoryboardModel.git", from: "0.0.2"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
