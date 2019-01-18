@@ -195,7 +195,7 @@ let kSwiftCodeTemplate = """
         {{ instance }}.isMultipleTouchEnabled = {{ view.multipleTouchEnabled | swiftBool }}
         {% endif %}
         {% if view.alpha %}
-        {{ instance }}.alpha = {{ view.alpah }}
+        {{ instance }}.alpha = {{ view.alpha }}
         {% endif %}
         {% for color in view.color %}
         {% if color.red and color.green and color.blue and color.alpha %}
