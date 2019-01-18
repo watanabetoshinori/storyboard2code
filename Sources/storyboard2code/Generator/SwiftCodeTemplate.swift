@@ -168,6 +168,8 @@ let kSwiftCodeTemplate = """
         {% call render_toolbar_properties view %}
         {% elif type == "WkWebView" %}
         {% call render_wkwebview_properties view %}
+        {% elif type == "VisualEffectView" %}
+        {% call render_visualeffectview_properties view %}
         {% endif %}
         {% call render_actions view %}
         {% call render_subviews view %}
@@ -963,6 +965,23 @@ let kSwiftCodeTemplate = """
 {% endmacro %}
 {#
   ///
+  /// VisualEffectView
+  ///
+#}
+{% macro render_visualeffectview_properties view %}
+        {% set instance view | instanceName %}
+        {% if view.blurEffect %}
+        {{ instance }}.effect = UIBlurEffect(style: .{{ view.blurEffect.style }})
+        {% endif %}
+        {% if view.vibrancyEffect.blurEffect %}
+        {{ instance }}.effect = UIVibrancyEffect(style: .{{ view.vibrancyEffect.blurEffect.style }})
+        {% endif %}
+        {% if view.view %}
+        {% call render_contentview view %}
+        {% endif %}
+{% endmacro %}
+{#
+  ///
   /// Subviews
   ///
 #}
@@ -1000,12 +1019,10 @@ let kSwiftCodeTemplate = """
             "{{ segment.title }}",
             {% endfor %}
         ])
+        {% endif %}
         {% elif type == "TableView" %}
         {% if view.style %}
         {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(frame: .zero, style: {{ view.style }})
-        {% else %}
-        {% endif %}
-        {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(frame: .zero)
         {% else %}
         {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(frame: .zero)
         {% endif %}
@@ -1019,6 +1036,58 @@ let kSwiftCodeTemplate = """
         {{ instance }}.addSubview({{ sub_instance }})
         {% endif %}
         {% endfor %}
+{% endmacro %}
+{#
+  ///
+  /// ContentView
+  ///
+#}
+{% macro render_contentview view %}
+        {% set instance view | instanceName %}
+        {% set instanceType view | type %}
+        {% set instance_prefix %}let {% endset %%}
+        {% set view view.view %}
+        {% set sub_instance view | instanceName %}
+        {% set type view | type %}
+
+        /* {{ view.id }} */
+        {% if type == "TableView" %}
+        {% if view.style %}
+        {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(frame: .zero, style: {{ view.style }})
+        {% else %}
+        {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(frame: .zero)
+        {% endif %}
+        {% elif type == "Button" %}
+        {% if view.buttonType %}
+        {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(type: .{{ view.buttonType }})
+        {% else %}
+        let {{ sub_instance }} = {{ view | class }}(frame: .zero)
+        {% endif %}
+        {% elif type == "ProgressView" %}
+        {% if view.progressViewStyle %}
+        {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(progressViewStyle: .{{ view.progressViewStyle }})
+        {% else %}
+        {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(frame: .zero)
+        {% endif %}
+        {% elif type == "SegmentedControl" %}
+        {% if view.segments %}
+        {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(items: [
+            {% for segment in view.segments %}
+            "{{ segment.title }}",
+            {% endfor %}
+        ])
+        {% endif %}
+        {% elif type == "TableView" %}
+        {% if view.style %}
+        {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(frame: .zero, style: {{ view.style }})
+        {% else %}
+        {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(frame: .zero)
+        {% endif %}
+        {% else %}
+        {{ instance_prefix }}{{ sub_instance }} = {{ view | class }}(frame: .zero)
+        {% endif %}
+        {% call render_view view %}
+        {{ instance }}.contentView.addSubview({{ sub_instance }})
 {% endmacro %}
 {#
   ///
