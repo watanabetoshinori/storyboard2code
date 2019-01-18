@@ -122,6 +122,9 @@ class SwiftCodeExtension: Extension {
                         views.append(refreshControl)
                     }
                 }
+
+                // Save root views for resovling instance name.
+                SwiftInstanceNameTable.shared.rootViews.append(contentsOf: views)
                 
                 return views
             }

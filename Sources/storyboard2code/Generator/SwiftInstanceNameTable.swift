@@ -18,6 +18,8 @@ class SwiftInstanceNameTable: NSObject {
     
     var records = [NameRecord]()
     
+    var rootViews = [View]()
+    
     // MARK: - Initializing a Singleton
     
     static let shared = SwiftInstanceNameTable()
@@ -35,14 +37,17 @@ class SwiftInstanceNameTable: NSObject {
     // MARK: - Generate instance name for object
     
     func generateName(for id: String, view: View) -> String {
+        let isRootView = (rootViews.first(where: { $0.id == id }) != nil)
+
         let type: String = {
-            if let customClass = view.customClass {
+            if isRootView == false,
+                let customClass = view.customClass {
                 return customClass
             }
             return SwiftCodeExtension.getClassName(for: view)
         }()
 
-        let name = registerRecord(for: id, type: type)
+        let name = registerRecord(for: id, type: type, autoIncrement: isRootView == false)
 
         // Save SaveArea ViewLayoutGuide
         if let layoutGuide = view.viewLayoutGuide,
@@ -64,7 +69,7 @@ class SwiftInstanceNameTable: NSObject {
     
     // MARK: - Register Name record
     
-    private func registerRecord(for id: String, type: String) -> String {
+    private func registerRecord(for id: String, type: String, autoIncrement: Bool = true) -> String {
         let lowerType: String = {
             if let first = type.first {
                 return String(first).lowercased() + type.dropFirst()
@@ -72,12 +77,14 @@ class SwiftInstanceNameTable: NSObject {
             return type
         }()
         
-        let sameTypeRecords = records.filter({ $0.type == type })
         let name: String = {
-            if sameTypeRecords.count == 0 {
-                return lowerType
+            if autoIncrement {
+                let sameTypeRecords = records.filter({ $0.type == type })
+                if sameTypeRecords.count > 0 {
+                    return lowerType + "\(sameTypeRecords.count + 1)"
+                }
             }
-            return lowerType + "\(sameTypeRecords.count + 1)"
+            return lowerType
         }()
         
         let record = NameRecord(id: id, type: type, name: name)
